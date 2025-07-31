@@ -2,6 +2,9 @@
 #Angel Rodas - 1594125
 
 #-----------Sistema de premios de peliculas----------
+
+categorias_voto = ["Mejor Guion", "Mejor Dirección", "Mejor Banda Sonora", "Mejor Animación"]
+
 peliculas = [
     {"titulo": "Inception", "categoria": "Ciencia ficción", "votos": {
         "Mejor Guion": 0,
@@ -26,7 +29,7 @@ peliculas = [
 def registrar_pelicula(titulo, categoria):
     for peli in peliculas:
         if peli["titulo"].lower() == titulo.lower():
-            print(f"La película '{titulo}' ya está registrada.")
+            print(f"La película '{titulo}' ya está registrada.\n")
             return
 
     peliculas.append({
@@ -39,57 +42,59 @@ def registrar_pelicula(titulo, categoria):
             "Mejor Animación": 0
         }
     })
-    print(f"Pelicula '{titulo}' registrada con exito en la categoria '{categoria}'.")
+    print(f"Pelicula '{titulo}' registrada con exito en la categoria '{categoria}'.\n")
 
-
-def registrar_votos(titulo, voto):
+def registrar_votos(titulo):
     if not peliculas:
-        print("No hay peliculas registradas")
+        print("No hay películas registradas.")
         return
 
-    encontrado = False
-    voto = voto.strip()  
     for pelicula in peliculas:
-        if pelicula["titulo"].lower() == titulo.lower():
-            categorias_validas = [k.lower() for k in pelicula["votos"].keys()]
-            if voto.lower() in categorias_validas:
-                clave_original = [k for k in pelicula["votos"].keys() if k.lower() == voto.lower()][0]
-                pelicula["votos"][clave_original] += 1
-                encontrado = True
-                print(f"Voto registrado en '{clave_original}' para la película '{titulo}'.")
-            break
+        if titulo.lower().strip() == pelicula["titulo"].lower().strip():
+            print("\nSeleccione la categoría en la que desea votar:")
+            for i, cat in enumerate(categorias_voto, start=1):
+                print(f"{i}. {cat}")
+            try:
+                opcion = int(input("Ingrese el número de la categoría: "))
+                if 1 <= opcion <= len(categorias_voto):
+                    categoria_elegida = categorias_voto[opcion - 1]
+                    pelicula["votos"][categoria_elegida] += 1
+                    print(f"Voto registrado para '{titulo}' en la categoría '{categoria_elegida}'.")
+                else:
+                    print("Opcion invalida. Debe elegir un numero valido.")
+            except ValueError:
+                print("Entrada invalida. Debe ingresar un numero.")
+            return
 
-    if not encontrado:
-        print("Su voto debe ser a una de estas categorías exactamente:")
-        print("Mejor Guion\nMejor Dirección\nMejor Banda Sonora\nMejor Animación")
+    print("No se encontró ninguna película con ese título.")
 
 
 def mostrar_resultados():
     if peliculas:
         for peli in peliculas:
-            print(f"\nTítulo: {peli['titulo']} ({peli['categoria']})")
+            print(f"\nTítulo: {peli['titulo']} ({peli['categoria']})\n")
             for clave, valor in peli["votos"].items():
                 print(f"  {clave}: {valor}")
     else:
         print("No hay peliculas registradas.")
 
 def determinar_ganador():
-    categorias = ["Mejor Guion", "Mejor Dirección", "Mejor Banda Sonora", "Mejor Animación"]
-    
-    for categoria in categorias:
+    for categoria in categorias_voto:
         max_votos = -1
         ganadora = None
+        total_votos = 0  
         
         for pelicula in peliculas:
-            votos_categoria = pelicula["votos"].get(categoria)
-            if votos_categoria is not None and votos_categoria > max_votos:
+            votos_categoria = pelicula["votos"].get(categoria, 0)
+            total_votos += votos_categoria
+            if votos_categoria > max_votos:
                 max_votos = votos_categoria
                 ganadora = pelicula["titulo"]
         
-        if ganadora:
-            print(f"{categoria}: {ganadora} ({max_votos} votos)")
+        if total_votos == 0:
+            print(f"{categoria}:no hay votos registrados aun")
         else:
-            print(f"{categoria}: Sin votos registrados")
+            print(f"{categoria}: {ganadora} ({max_votos} votos)")
 
 
 while True:
@@ -100,7 +105,7 @@ while True:
         print ("3. Mostrar resultados actuales")
         print ("4. Pelicula ganadora por categoria")
         print ("5. Salir...")
-        opcion = int(input("Ingrese una de las siguientes opciones"))
+        opcion = int(input("Ingrese una de las siguientes opciones: "))
         
         if opcion == 1:
 
@@ -109,14 +114,9 @@ while True:
             registrar_pelicula(titulo, categoria)
 
         elif opcion == 2:
-            try:
-                titulo = input("Ingrese el título de la película: ")
-                print("Categorías de voto: Mejor Guion, Mejor Dirección, Mejor Banda Sonora, Mejor Animación")
-                voto = input("Ingrese la categoría en la que vota exactamente como aparece: ")
-                registrar_votos(titulo, voto)
-            except Exception as e:
-                print("Error al registrar el voto:", e)
-        
+            titulo = input("Ingrese el título de la película: ")
+            registrar_votos(titulo)
+
         elif opcion == 3:
             mostrar_resultados()
         
